@@ -23,23 +23,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "入力内容が正しくありません" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "入力内容が正しくありません" }, { status: 400 });
     }
 
     const { gameSlug, content } = parsed.data;
 
     // L1ユーザーはコンテンツフィルタ（SR-003）
     if (session.trustLevel === "L1" && hasBlockedContent(content)) {
-      return NextResponse.json(
-        { error: getBlockReason(content) },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: getBlockReason(content) }, { status: 400 });
     }
 
-    // ゲームID取得
     const [game] = await db
       .select({ id: games.id })
       .from(games)
@@ -50,11 +43,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "ゲームが見つかりません" }, { status: 404 });
     }
 
-    // AI スコア（TODO: Python AI サービス呼び出しに置き換え）
     const aiScore = 90;
     const aiRiskLevel = "safe" as const;
-
     const id = generateId();
+    const now = new Date();
+
     await db.insert(roomPosts).values({
       id,
       userId: session.id,
@@ -65,12 +58,24 @@ export async function POST(req: NextRequest) {
       isFlagged: false,
     });
 
-    return NextResponse.json({ ok: true, id });
+    // 投稿後にフロントで即時表示できるようユーザー情報付きで返す
+    return NextResponse.json({
+      ok: true,
+      id,
+      post: {
+        id,
+        content,
+        reactionCount: 0,
+        replyCount: 0,
+        createdAt: now.toISOString(),
+        userId: session.id,
+        userNickname: session.nickname,
+        userAvatarId: session.avatarId,
+        userTrustLevel: session.trustLevel,
+      },
+    });
   } catch (err) {
     console.error("[POST /api/rooms]", err);
-    return NextResponse.json(
-      { error: "サーバーエラーが発生しました" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }

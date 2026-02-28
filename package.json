@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
+    "db:seed": "npx tsx src/lib/db/seed-games.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
