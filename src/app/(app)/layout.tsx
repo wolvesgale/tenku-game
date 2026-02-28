@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+export const dynamic = "force-dynamic";
 import { getSession } from "@/lib/auth";
 import BottomNav from "@/components/layout/BottomNav";
 

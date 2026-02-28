@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { users, inviteCodes, gameInterests } from "@/lib/db/schema";
 import { hashPassword, setSession } from "@/lib/auth";

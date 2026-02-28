@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { roomPosts, games } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth";

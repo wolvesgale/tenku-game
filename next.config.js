@@ -4,5 +4,4 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@neondatabase/serverless"],
   },
 };
-
 module.exports = nextConfig;
