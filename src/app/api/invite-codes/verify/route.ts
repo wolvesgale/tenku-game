@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { inviteCodes } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {

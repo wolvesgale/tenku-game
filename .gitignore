@@ -28,3 +28,4 @@ next-env.d.ts
 
 # drizzle migrations (生成物)
 /drizzle
+.env*.local

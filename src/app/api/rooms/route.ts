@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { roomPosts, games } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth";
 import { generateId, hasBlockedContent, getBlockReason } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+
+export const dynamic = "force-dynamic";
 
 const schema = z.object({
   gameSlug: z.string(),

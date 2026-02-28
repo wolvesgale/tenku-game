@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { users, inviteCodes, gameInterests } from "@/lib/db/schema";
 import { hashPassword, setSession } from "@/lib/auth";
 import { generateId } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+
+export const dynamic = "force-dynamic";
 
 const schema = z.object({
   inviteCode:  z.string().length(8),

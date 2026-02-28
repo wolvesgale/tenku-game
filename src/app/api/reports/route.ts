@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-export const dynamic = "force-dynamic";
 import { db } from "@/lib/db";
 import { reports } from "@/lib/db/schema";
 import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/utils";
 import { z } from "zod";
+
+export const dynamic = "force-dynamic";
 
 const schema = z.object({
   targetType: z.enum(["post", "dm_message", "user"]),
