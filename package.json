@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:seed": "npx tsx src/lib/db/seed-games.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:create-test": "npx tsx src/lib/db/create-test-account.ts"
   },
   "dependencies": {
     "next": "14.2.29",

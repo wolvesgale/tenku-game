@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Send, Flag, MessageCircle, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import {
   cn,
   formatRelativeTime,
@@ -266,9 +267,9 @@ function PostCard({
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-semibold text-white">
+              <Link href={`/users/${post.userId}`} className="text-sm font-semibold text-white hover:text-violet-300 transition-colors">
                 {post.userNickname}
-              </span>
+              </Link>
               <span
                 className={cn(
                   "text-[10px] px-1.5 py-0.5 rounded border font-bold",
