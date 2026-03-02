@@ -1,20 +1,39 @@
 /**
  * テストアカウント作成スクリプト
  * 実行: npm run db:create-test
- * (.env.local の DATABASE_URL を自動読み込み)
+ *
+ * DATABASE_URLは.env.localから自動読み込み (tsx が処理)
+ * または: DATABASE_URL="postgres://..." npm run db:create-test
  */
-import { config } from "dotenv";
-import { resolve } from "path";
 
-// .env.local を自動読み込み
-config({ path: resolve(process.cwd(), ".env.local") });
+// @ts-nocheck
+/* eslint-disable */
 
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import { eq } from "drizzle-orm";
-import { users, inviteCodes, parents, gameInterests, games } from "./schema";
-import bcrypt from "bcryptjs";
-import { customAlphabet } from "nanoid";
+const { neon } = require("@neondatabase/serverless");
+const { drizzle } = require("drizzle-orm/neon-http");
+const { eq } = require("drizzle-orm");
+const { users, inviteCodes, parents, gameInterests, games } = require("./schema");
+const bcrypt = require("bcryptjs");
+const { customAlphabet } = require("nanoid");
+const fs = require("fs");
+const path = require("path");
+
+// .env.local を手動パース
+function loadEnvLocal() {
+  const envPath = path.resolve(process.cwd(), ".env.local");
+  if (!fs.existsSync(envPath)) return;
+  const lines = fs.readFileSync(envPath, "utf-8").split("\n");
+  for (const line of lines) {
+    const match = line.match(/^([^#=]+)=(.*)$/);
+    if (match) {
+      const key = match[1].trim();
+      const val = match[2].trim().replace(/^["']|["']$/g, "");
+      if (!process.env[key]) process.env[key] = val;
+    }
+  }
+}
+
+loadEnvLocal();
 
 const generateId = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 21);
 
@@ -25,10 +44,9 @@ async function main() {
     process.exit(1);
   }
 
-  const db = drizzle(neon(url) as any);
+  const db = drizzle(neon(url));
   console.log("🔌 DB接続OK\n");
 
-  // 保護者
   const parentId = generateId();
   await db.insert(parents).values({
     id: parentId,
@@ -38,7 +56,6 @@ async function main() {
   }).onConflictDoNothing();
   console.log("✅ 保護者アカウント作成");
 
-  // 招待コード（有効期限1年）
   const codeId = generateId();
   await db.insert(inviteCodes).values({
     id: codeId,
@@ -48,7 +65,6 @@ async function main() {
   }).onConflictDoNothing();
   console.log("✅ 招待コード: TESTCODE");
 
-  // テストユーザー（L2）
   const userId = generateId();
   await db.insert(users).values({
     id: userId,
@@ -63,17 +79,15 @@ async function main() {
   }).onConflictDoNothing();
   console.log("✅ ユーザー作成: テストユーザー (L2)");
 
-  // 招待コードを使用済みに
   await db.update(inviteCodes)
     .set({ usedByUserId: userId, usedAt: new Date() })
     .where(eq(inviteCodes.code, "TESTCODE"));
 
-  // ゲーム興味（上位3件）
   const topGames = await db.select({ id: games.id, slug: games.slug }).from(games).limit(3);
   for (const g of topGames) {
     await db.insert(gameInterests).values({ userId, gameId: g.id }).onConflictDoNothing();
   }
-  console.log(`✅ ゲーム興味: ${topGames.map(g => g.slug).join(", ")}`);
+  console.log(`✅ ゲーム興味: ${topGames.map((g) => g.slug).join(", ")}`);
 
   console.log("\n========================================");
   console.log("🎉 テストアカウント作成完了！");
@@ -85,4 +99,4 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(e => { console.error("❌", e.message); process.exit(1); });
+main().catch((e) => { console.error("❌", e.message); process.exit(1); });
